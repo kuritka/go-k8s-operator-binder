@@ -18,6 +18,6 @@
 !.golangci.yaml
 !.gitkeep
 !NOTES.md
-
+!CODEOWNERS
 # ...even if they are in subdirectories
 !*/
