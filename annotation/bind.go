@@ -79,9 +79,9 @@ func Bind(annotations map[string]string, s interface{}) (err error) {
 }
 
 // binds meta to structure pointer
-func bind(annotations map[string]string, m meta) (err error) {
+func bind(annotations map[string]string, m meta) (err error) { //nolint:gocyclo
 	for k, v := range m {
-		f := reflect.NewAt(v.fieldValue.Type(), unsafe.Pointer(v.fieldValue.UnsafeAddr())).Elem()
+		f := reflect.NewAt(v.fieldValue.Type(), unsafe.Pointer(v.fieldValue.UnsafeAddr())).Elem() //nolint:govet
 		switch f.Interface().(type) {
 		case bool:
 			var b bool

@@ -15,7 +15,7 @@
 !LICENSE
 !.licignore
 !.golic.yaml
-!.golangci.yaml
+!.golangci.toml
 !.gitkeep
 !NOTES.md
 !CODEOWNERS

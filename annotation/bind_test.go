@@ -29,7 +29,7 @@ import (
 
 type arnold struct {
 	// int value
-	id int `annotation:"controller.example.com/id, require=true"`
+	id int `annotation:"controller.example.com/id, require=true"` //nolint:unused
 	// float value
 	Budget float64
 	// string value
