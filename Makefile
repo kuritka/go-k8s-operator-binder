@@ -23,7 +23,7 @@ RED=\033[31m
 NC=\033[0m
 endif
 
-GOLIC_VERSION  ?= v0.5.0
+GOLIC_VERSION  ?= v0.7.2
 GOLINT_VERSION ?= v1.50.1
 
 # check integrity
