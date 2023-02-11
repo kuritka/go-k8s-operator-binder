@@ -546,7 +546,106 @@ func TestString(t *testing.T) {
 }
 
 func TestBool(t *testing.T) {
+	type s struct {
+		Public                  bool `annotation:"public"`
+		private                 bool `annotation:"private"`
+		Protected               bool `annotation:"protected, protected=true"`
+		Required                bool `annotation:"require, require=true"`
+		Default                 bool `annotation:"default, default=true"`
+		privateDefaultProtected bool `annotation:"privateDefaultProtected, default=true, protected=true"`
+		Nested                  struct {
+			Value bool `annotation:"nested, default=true"`
+		}
+	}
 
+	var tests = []struct {
+		name          string
+		m             map[string]string
+		s             *s
+		expectedError bool
+		a             func(s *s)
+	}{
+		{name: "Public", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "public": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Public)
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "private", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "private": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.private)
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Protected Off", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "protected": "true"},
+			a: func(s *s) {
+				assert.Equal(t, false, s.Protected)
+				assert.Equal(t, true, s.Required)
+			}},
+		{name: "Protected On", s: &s{Protected: true}, expectedError: false, m: map[string]string{"require": "true", "protected": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Protected)
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Unprotected", s: &s{Required: true}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Required On", s: &s{}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Required Off", s: &s{}, expectedError: true, m: map[string]string{},
+			a: func(s *s) {}},
+		{name: "Default On", s: &s{}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Default Off", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "default": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "Default On + unprotected", s: &s{Default: true}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "private default protected 1", s: &s{privateDefaultProtected: true}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.privateDefaultProtected)
+				assert.Equal(t, true, s.Default)
+			}},
+		{name: "private default protected 2", s: &s{}, expectedError: false, m: map[string]string{"require": "true"},
+			a: func(s *s) {
+				assert.Equal(t, false, s.privateDefaultProtected)
+				assert.Equal(t, true, s.Default)
+				assert.Equal(t, true, s.Required)
+			}},
+		{name: "private default protected 3", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "privateDefaultProtected": "true"},
+			a: func(s *s) {
+				assert.Equal(t, false, s.privateDefaultProtected)
+				assert.Equal(t, true, s.Default)
+				assert.Equal(t, true, s.Required)
+			}},
+		{name: "nested", s: &s{}, expectedError: false, m: map[string]string{"require": "true", "nested": "true"},
+			a: func(s *s) {
+				assert.Equal(t, true, s.Nested.Value)
+				assert.Equal(t, true, s.Required)
+				assert.Equal(t, true, s.Default)
+			}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := Bind(test.m, test.s)
+			assert.Equal(t, test.expectedError, err != nil)
+			test.a(test.s)
+		})
+	}
 }
 
 func TestIntSlice(t *testing.T) {
