@@ -49,7 +49,7 @@ type arnold struct {
 	// int value
 	id int `annotation:"controller.example.com/id, require=true"` //nolint:unused
 	// float value
-	Budget float64
+	Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
 	// string value
 	Name string `annotation:"controller.example.com/Name"`
 	// private field
@@ -69,9 +69,9 @@ type arnold struct {
 
 func (a *arnold) String() string {
 	if a.Armed {
-		return fmt.Sprintf("Machine Gun %s %s, ranks:%v, inventory: [%s, %s]", a.Name, a.surname, a.Ranks, a.Inventory.Rope, a.Inventory.paperWithSecretKey)
+		return fmt.Sprintf("Machine Gun %s %s, ranks:%v, inventory: [%s, %s], budget: %v", a.Name, a.surname, a.Ranks, a.Inventory.Rope, a.Inventory.paperWithSecretKey, a.Budget)
 	}
-	return fmt.Sprintf("%s %s in full retreat, ranks:%v, inventory: [%s, %s]", a.Name, a.surname, a.Ranks, a.Inventory.Rope, a.Inventory.paperWithSecretKey)
+	return fmt.Sprintf("%s %s in full retreat, ranks:%v, inventory: [%s, %s], budget: %v", a.Name, a.surname, a.Ranks, a.Inventory.Rope, a.Inventory.paperWithSecretKey, a.Budget)
 }
 
 func TestBind(t *testing.T) {
@@ -96,13 +96,13 @@ func TestBind(t *testing.T) {
 	}{
 		{
 			name:           "private field",
-			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY]",
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
 			expectedError:  false,
 			modifier:       func(m map[string]string, a *arnold) {},
 		},
 		{
 			name:           "protected field",
-			expectedResult: "Machine Gun Arnold Rimmer, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY]",
+			expectedResult: "Machine Gun Arnold Rimmer, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
 			expectedError:  false,
 			modifier: func(m map[string]string, a *arnold) {
 				a.Armed = true
@@ -125,9 +125,68 @@ func TestBind(t *testing.T) {
 		{
 			name:           "empty non required field",
 			expectedError:  false,
-			expectedResult: "Arnold  in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY]",
+			expectedResult: "Arnold  in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
 			modifier: func(m map[string]string, a *arnold) {
 				m["controller.example.com/surname"] = ""
+			},
+		},
+		{
+			name:           "default field override",
+			expectedError:  false,
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
+			modifier: func(m map[string]string, a *arnold) {
+			},
+		},
+		{
+			name:           "default field doesn't exist",
+			expectedError:  false,
+			expectedResult: "Arnold Schwarzenegger in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
+			modifier: func(m map[string]string, a *arnold) {
+				delete(m, "controller.example.com/surname")
+			},
+		},
+		{
+			name:           "default field empty",
+			expectedError:  false,
+			expectedResult: "Arnold  in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
+			modifier: func(m map[string]string, a *arnold) {
+				m["controller.example.com/surname"] = ""
+			},
+		},
+		{
+			name:           "protected field filled",
+			expectedError:  false,
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 180.3",
+			modifier: func(m map[string]string, a *arnold) {
+				m["controller.example.com/budget"] = "1000"
+				a.Budget = 180.3
+			},
+		},
+		{
+			name:           "protected default field specified, but unfilled ",
+			expectedError:  false,
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 1000",
+			modifier: func(m map[string]string, a *arnold) {
+				m["controller.example.com/budget"] = "1000"
+			},
+		},
+		{
+			name:           "protected default field empty and unfilled",
+			expectedError:  true,
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
+			modifier: func(m map[string]string, a *arnold) {
+				// Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
+				m["controller.example.com/budget"] = ""
+			},
+		},
+		{
+			name:           "protected default field empty and filled",
+			expectedError:  false,
+			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 20.1",
+			modifier: func(m map[string]string, a *arnold) {
+				// Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
+				m["controller.example.com/budget"] = ""
+				a.Budget = 20.1
 			},
 		},
 		{
@@ -174,4 +233,334 @@ func TestBreaking(t *testing.T) {
 			assert.Equal(t, err != nil, test.expectedError)
 		})
 	}
+}
+
+func TestInt(t *testing.T) {
+	type s struct {
+		Public                  int `annotation:"public"`
+		private                 int `annotation:"private"`
+		Protected               int `annotation:"protected, protected=true"`
+		Required                int `annotation:"require, require=true"`
+		Default                 int `annotation:"default, default=1000"`
+		privateDefaultProtected int `annotation:"privateDefaultProtected, default=1000, protected=true"`
+		Nested                  struct {
+			Value int `annotation:"nested, default=100"`
+		}
+	}
+
+	var tests = []struct {
+		name          string
+		m             map[string]string
+		s             *s
+		expectedError bool
+		a             func(s *s)
+	}{
+		{name: "Public", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "public": "1"},
+			a: func(s *s) {
+				assert.Equal(t, 1, s.Public)
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "private", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "private": "2"},
+			a: func(s *s) {
+				assert.Equal(t, 2, s.private)
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "Protected Off", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "protected": "3"},
+			a: func(s *s) {
+				assert.Equal(t, 3, s.Protected)
+				assert.Equal(t, 10, s.Required)
+			}},
+		{name: "Protected On", s: &s{Protected: 100}, expectedError: false, m: map[string]string{"require": "10", "protected": "3"},
+			a: func(s *s) {
+				assert.Equal(t, 100, s.Protected)
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "Unprotected", s: &s{Required: 100}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "Required On", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "Required Off", s: &s{}, expectedError: true, m: map[string]string{},
+			a: func(s *s) {}},
+		{name: "Default On", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "Default Off", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "default": "4"},
+			a: func(s *s) {
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 4, s.Default)
+			}},
+		{name: "Default On + unprotected", s: &s{Default: 50}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "private default protected 1", s: &s{privateDefaultProtected: 5}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 5, s.privateDefaultProtected)
+				assert.Equal(t, 1000, s.Default)
+			}},
+		{name: "private default protected 2", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 1000, s.privateDefaultProtected)
+				assert.Equal(t, 1000, s.Default)
+				assert.Equal(t, 10, s.Required)
+			}},
+		{name: "private default protected 3", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "privateDefaultProtected": "5"},
+			a: func(s *s) {
+				assert.Equal(t, 5, s.privateDefaultProtected)
+				assert.Equal(t, 1000, s.Default)
+				assert.Equal(t, 10, s.Required)
+			}},
+		{name: "nested", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "nested": "100"},
+			a: func(s *s) {
+				assert.Equal(t, 100, s.Nested.Value)
+				assert.Equal(t, 10, s.Required)
+				assert.Equal(t, 1000, s.Default)
+			}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := Bind(test.m, test.s)
+			assert.Equal(t, test.expectedError, err != nil)
+			test.a(test.s)
+		})
+	}
+}
+
+func TestFloat64(t *testing.T) {
+	type s struct {
+		Public                  float64 `annotation:"public"`
+		private                 float64 `annotation:"private"`
+		Protected               float64 `annotation:"protected, protected=true"`
+		Required                float64 `annotation:"require, require=true"`
+		Default                 float64 `annotation:"default, default=1000"`
+		privateDefaultProtected float64 `annotation:"privateDefaultProtected, default=1000, protected=true"`
+		Nested                  struct {
+			Value float64 `annotation:"nested, default=100"`
+		}
+	}
+
+	var tests = []struct {
+		name          string
+		m             map[string]string
+		s             *s
+		expectedError bool
+		a             func(s *s)
+	}{
+		{name: "Public", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "public": "1"},
+			a: func(s *s) {
+				assert.Equal(t, 1., s.Public)
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "private", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "private": "2"},
+			a: func(s *s) {
+				assert.Equal(t, 2., s.private)
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "Protected Off", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "protected": "3"},
+			a: func(s *s) {
+				assert.Equal(t, 3., s.Protected)
+				assert.Equal(t, 10., s.Required)
+			}},
+		{name: "Protected On", s: &s{Protected: 100.}, expectedError: false, m: map[string]string{"require": "10", "protected": "3"},
+			a: func(s *s) {
+				assert.Equal(t, 100., s.Protected)
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "Unprotected", s: &s{Required: 100.}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "Required On", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "Required Off", s: &s{}, expectedError: true, m: map[string]string{},
+			a: func(s *s) {}},
+		{name: "Default On", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "Default Off", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "default": "4"},
+			a: func(s *s) {
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 4., s.Default)
+			}},
+		{name: "Default On + unprotected", s: &s{Default: 50}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "private default protected 1", s: &s{privateDefaultProtected: 5}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 5., s.privateDefaultProtected)
+				assert.Equal(t, 1000., s.Default)
+			}},
+		{name: "private default protected 2", s: &s{}, expectedError: false, m: map[string]string{"require": "10"},
+			a: func(s *s) {
+				assert.Equal(t, 1000., s.privateDefaultProtected)
+				assert.Equal(t, 1000., s.Default)
+				assert.Equal(t, 10., s.Required)
+			}},
+		{name: "private default protected 3", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "privateDefaultProtected": "5"},
+			a: func(s *s) {
+				assert.Equal(t, 5., s.privateDefaultProtected)
+				assert.Equal(t, 1000., s.Default)
+				assert.Equal(t, 10., s.Required)
+			}},
+		{name: "nested", s: &s{}, expectedError: false, m: map[string]string{"require": "10", "nested": "100"},
+			a: func(s *s) {
+				assert.Equal(t, 100., s.Nested.Value)
+				assert.Equal(t, 10., s.Required)
+				assert.Equal(t, 1000., s.Default)
+			}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := Bind(test.m, test.s)
+			assert.Equal(t, test.expectedError, err != nil)
+			test.a(test.s)
+		})
+	}
+}
+
+func TestString(t *testing.T) {
+	type s struct {
+		Public                  string `annotation:"public"`
+		private                 string `annotation:"private"`
+		Protected               string `annotation:"protected, protected=true"`
+		Required                string `annotation:"require, require=true"`
+		Default                 string `annotation:"default, default=rootDefault"`
+		privateDefaultProtected string `annotation:"privateDefaultProtected, default=rootDefault, protected=true"`
+		Nested                  struct {
+			Value string `annotation:"nested, default=nestedDefault"`
+		}
+	}
+
+	var tests = []struct {
+		name          string
+		m             map[string]string
+		s             *s
+		expectedError bool
+		a             func(s *s)
+	}{
+		{name: "Public", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "public": "public"},
+			a: func(s *s) {
+				assert.Equal(t, "public", s.Public)
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "private", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "private": "private"},
+			a: func(s *s) {
+				assert.Equal(t, "private", s.private)
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "Protected Off", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "protected": "protected"},
+			a: func(s *s) {
+				assert.Equal(t, "protected", s.Protected)
+				assert.Equal(t, "require", s.Required)
+			}},
+		{name: "Protected On", s: &s{Protected: "protected"}, expectedError: false, m: map[string]string{"require": "require", "protected": "protected"},
+			a: func(s *s) {
+				assert.Equal(t, "protected", s.Protected)
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "Unprotected", s: &s{Required: "blah"}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "Required On", s: &s{}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "Required Off", s: &s{}, expectedError: true, m: map[string]string{},
+			a: func(s *s) {}},
+		{name: "Default On", s: &s{}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "Default Off", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "default": "4"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "4", s.Default)
+			}},
+		{name: "Default On + unprotected", s: &s{Default: "50"}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "private default protected 1", s: &s{privateDefaultProtected: "5"}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "5", s.privateDefaultProtected)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "private default protected 2", s: &s{}, expectedError: false, m: map[string]string{"require": "require"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "rootDefault", s.privateDefaultProtected)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+		{name: "private default protected 3", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "privateDefaultProtected": "5"},
+			a: func(s *s) {
+				assert.Equal(t, "5", s.privateDefaultProtected)
+				assert.Equal(t, "rootDefault", s.Default)
+				assert.Equal(t, "require", s.Required)
+			}},
+		{name: "nested", s: &s{}, expectedError: false, m: map[string]string{"require": "require", "nested": "nestedDefault"},
+			a: func(s *s) {
+				assert.Equal(t, "require", s.Required)
+				assert.Equal(t, "nestedDefault", s.Nested.Value)
+				assert.Equal(t, "rootDefault", s.Default)
+			}},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := Bind(test.m, test.s)
+			assert.Equal(t, test.expectedError, err != nil)
+			test.a(test.s)
+		})
+	}
+}
+
+func TestBool(t *testing.T) {
+
+}
+
+func TestIntSlice(t *testing.T) {
+
+}
+
+func TestFloat64Slice(t *testing.T) {
+
+}
+
+func TestStringSlice(t *testing.T) {
+
+}
+
+func TestBoolSlice(t *testing.T) {
+
 }
