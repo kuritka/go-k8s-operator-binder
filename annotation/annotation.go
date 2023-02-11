@@ -49,27 +49,6 @@ func GetAsArrayOfStringsOrFallback(annotations map[string]string, key string, de
 	return defaultValue
 }
 
-// GetAsArrayOfIntsOrFallback returns the annotation variable for the given key
-// and falls back to the given defaultValue if not set
-func GetAsArrayOfIntsOrFallback(annotations map[string]string, key string, defaultValue []int) (ints []int, err error) {
-	if v, ex := annotations[key]; ex {
-		if v == "" {
-			return []int{}, nil
-		}
-		slice := strings.Split(strings.ReplaceAll(v, " ", ""), ",")
-		for _, s := range slice {
-			var i int
-			i, err = strconv.Atoi(s)
-			if err != nil {
-				return defaultValue, err
-			}
-			ints = append(ints, i)
-		}
-		return ints, nil
-	}
-	return defaultValue, nil
-}
-
 // GetAsArrayOfFloat64OrFallback returns the annotation variable for the given key
 // and falls back to the given defaultValue if not set
 func GetAsArrayOfFloat64OrFallback(annotations map[string]string, key string, defaultValue []float64) (floats []float64, err error) {
@@ -108,19 +87,6 @@ func GetAsArrayOfBoolOrFallback(annotations map[string]string, key string, defau
 			bools = append(bools, b)
 		}
 		return bools, nil
-	}
-	return defaultValue, nil
-}
-
-// GetAsIntOrFallback returns the annotation variable (parsed as integer) for
-// the given key and falls back to the given defaultValue if not set
-func GetAsIntOrFallback(annotations map[string]string, key string, defaultValue int) (int, error) {
-	if v, ex := annotations[key]; ex {
-		value, err := strconv.Atoi(v)
-		if err != nil {
-			return defaultValue, err
-		}
-		return value, nil
 	}
 	return defaultValue, nil
 }
