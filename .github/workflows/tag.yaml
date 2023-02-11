@@ -44,4 +44,3 @@ jobs:
           RELEASE_BRANCHES: main
           WITH_V: true
           DEFAULT_BUMP: minor
-#          PRERELEASE_SUFFIX: beta
