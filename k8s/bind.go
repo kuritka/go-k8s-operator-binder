@@ -1,4 +1,4 @@
-package annotation
+package k8s
 
 /*
 Copyright 2021 The k8gb Contributors.

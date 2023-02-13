@@ -1,5 +1,5 @@
-// Package annotation provides easy way to bind k8s annotations
-package annotation
+// Package k8s provides easy way to bind k8s annotations
+package k8s
 
 /*
 Copyright 2021 The k8gb Contributors.
