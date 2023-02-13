@@ -1,4 +1,4 @@
-module github.com/kuritka/annotation-binder
+module github.com/kuritka/go-k8s-operator-binder
 
 go 1.19
 
