@@ -29,13 +29,18 @@ sources without having to learn something new. A few keywords will make it much 
 setting default values or forcing a value.
 
 ### K8s Binder
+The ENV-GO-K8S-OPERATOR-BINDER/k8s package is used to easily bind kubernetes annotations and labels into GO structures.
+Effectively it is about `map[string]string` configurations.
 
+```golang
+import "github.com/kuritka/go-k8s-operator-binder/k8s"
 
+```
 
 ### Environment variables binder
-The ENV-GO-K8S-OPERATOR-BINDER/env package is used to easily bind environment variables to GO structures. ENV-BINDER is designed to
-be usable in the widest possible range of scenarios.Among other things, it supports variable
-prefixes and bindings to unexported arrays. Take a look at the following usage example:
+The ENV-GO-K8S-OPERATOR-BINDER/env package is used to easily bind environment variables to GO structures. The package 
+is designed to be usable in the widest possible range of scenarios. Among other things, it supports variable prefixes 
+and bindings to unexported arrays. Take a look at the following usage example:
 ```golang
 import "github.com/kuritka/go-k8s-operator-binder/env"
 
