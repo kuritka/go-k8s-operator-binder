@@ -1,4 +1,4 @@
-package k8s
+package k8smap
 
 /*
 Copyright 2023 The AbsaOSS Contributors.

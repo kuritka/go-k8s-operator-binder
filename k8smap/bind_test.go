@@ -1,4 +1,4 @@
-package k8s
+package k8smap
 
 /*
 Copyright 2023 The AbsaOSS Contributors.
@@ -29,23 +29,23 @@ import (
 
 type arnold struct {
 	// int value
-	id int `annotation:"controller.example.com/id, require=true"` //nolint:unused
+	id int `k8smap:"controller.example.com/id, require=true"` //nolint:unused
 	// float value
-	Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
+	Budget float64 `k8smap:"controller.example.com/budget, protected=true, default=500.1"`
 	// string value
-	Name string `annotation:"controller.example.com/Name"`
+	Name string `k8smap:"controller.example.com/Name"`
 	// private field
-	surname string `annotation:"controller.example.com/surname, default=Schwarzenegger"`
+	surname string `k8smap:"controller.example.com/surname, default=Schwarzenegger"`
 	// slice value
-	Ranks []string `annotation:"controller.example.com/ranks"`
+	Ranks []string `k8smap:"controller.example.com/ranks"`
 	// bool value
-	Armed bool `annotation:"controller.example.com/armed,protected=true"`
+	Armed bool `k8smap:"controller.example.com/armed,protected=true"`
 	// nested structure
 	Inventory struct {
 		//
-		Rope string `annotation:"controller.example.com/rope, require=true"`
+		Rope string `k8smap:"controller.example.com/rope, require=true"`
 		//
-		paperWithSecretKey string `annotation:"controller.example.com/secret, require=true"`
+		paperWithSecretKey string `k8smap:"controller.example.com/secret, require=true"`
 	}
 }
 
@@ -157,7 +157,7 @@ func TestBind(t *testing.T) {
 			expectedError:  true,
 			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 500.1",
 			modifier: func(m map[string]string, a *arnold) {
-				// Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
+				// Budget float64 `k8smap:"controller.example.com/budget, protected=true, default=500.1"`
 				m["controller.example.com/budget"] = ""
 			},
 		},
@@ -166,7 +166,7 @@ func TestBind(t *testing.T) {
 			expectedError:  false,
 			expectedResult: "Arnold Rimmer in full retreat, ranks:[officer1 capitan general major], inventory: [dipper rope, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY], budget: 20.1",
 			modifier: func(m map[string]string, a *arnold) {
-				// Budget float64 `annotation:"controller.example.com/budget, protected=true, default=500.1"`
+				// Budget float64 `k8smap:"controller.example.com/budget, protected=true, default=500.1"`
 				m["controller.example.com/budget"] = ""
 				a.Budget = 20.1
 			},
@@ -219,14 +219,14 @@ func TestBreaking(t *testing.T) {
 
 func TestInt(t *testing.T) {
 	type s struct {
-		Public                  int `annotation:"public"`
-		private                 int `annotation:"private"`
-		Protected               int `annotation:"protected, protected=true"`
-		Required                int `annotation:"require, require=true"`
-		Default                 int `annotation:"default, default=1000"`
-		privateDefaultProtected int `annotation:"privateDefaultProtected, default=1000, protected=true"`
+		Public                  int `k8smap:"public"`
+		private                 int `k8smap:"private"`
+		Protected               int `k8smap:"protected, protected=true"`
+		Required                int `k8smap:"require, require=true"`
+		Default                 int `k8smap:"default, default=1000"`
+		privateDefaultProtected int `k8smap:"privateDefaultProtected, default=1000, protected=true"`
 		Nested                  struct {
-			Value int `annotation:"nested, default=100"`
+			Value int `k8smap:"nested, default=100"`
 		}
 	}
 
@@ -322,14 +322,14 @@ func TestInt(t *testing.T) {
 
 func TestFloat64(t *testing.T) {
 	type s struct {
-		Public                  float64 `annotation:"public"`
-		private                 float64 `annotation:"private"`
-		Protected               float64 `annotation:"protected, protected=true"`
-		Required                float64 `annotation:"require, require=true"`
-		Default                 float64 `annotation:"default, default=1000"`
-		privateDefaultProtected float64 `annotation:"privateDefaultProtected, default=1000, protected=true"`
+		Public                  float64 `k8smap:"public"`
+		private                 float64 `k8smap:"private"`
+		Protected               float64 `k8smap:"protected, protected=true"`
+		Required                float64 `k8smap:"require, require=true"`
+		Default                 float64 `k8smap:"default, default=1000"`
+		privateDefaultProtected float64 `k8smap:"privateDefaultProtected, default=1000, protected=true"`
 		Nested                  struct {
-			Value float64 `annotation:"nested, default=100"`
+			Value float64 `k8smap:"nested, default=100"`
 		}
 	}
 
@@ -425,14 +425,14 @@ func TestFloat64(t *testing.T) {
 
 func TestString(t *testing.T) {
 	type s struct {
-		Public                  string `annotation:"public"`
-		private                 string `annotation:"private"`
-		Protected               string `annotation:"protected, protected=true"`
-		Required                string `annotation:"require, require=true"`
-		Default                 string `annotation:"default, default=rootDefault"`
-		privateDefaultProtected string `annotation:"privateDefaultProtected, default=rootDefault, protected=true"`
+		Public                  string `k8smap:"public"`
+		private                 string `k8smap:"private"`
+		Protected               string `k8smap:"protected, protected=true"`
+		Required                string `k8smap:"require, require=true"`
+		Default                 string `k8smap:"default, default=rootDefault"`
+		privateDefaultProtected string `k8smap:"privateDefaultProtected, default=rootDefault, protected=true"`
 		Nested                  struct {
-			Value string `annotation:"nested, default=nestedDefault"`
+			Value string `k8smap:"nested, default=nestedDefault"`
 		}
 	}
 
@@ -529,14 +529,14 @@ func TestString(t *testing.T) {
 
 func TestBool(t *testing.T) {
 	type s struct {
-		Public                  bool `annotation:"public"`
-		private                 bool `annotation:"private"`
-		Protected               bool `annotation:"protected, protected=true"`
-		Required                bool `annotation:"require, require=true"`
-		Default                 bool `annotation:"default, default=true"`
-		privateDefaultProtected bool `annotation:"privateDefaultProtected, default=true, protected=true"`
+		Public                  bool `k8smap:"public"`
+		private                 bool `k8smap:"private"`
+		Protected               bool `k8smap:"protected, protected=true"`
+		Required                bool `k8smap:"require, require=true"`
+		Default                 bool `k8smap:"default, default=true"`
+		privateDefaultProtected bool `k8smap:"privateDefaultProtected, default=true, protected=true"`
 		Nested                  struct {
-			Value bool `annotation:"nested, default=true"`
+			Value bool `k8smap:"nested, default=true"`
 		}
 	}
 
@@ -632,14 +632,14 @@ func TestBool(t *testing.T) {
 
 func TestIntSlice(t *testing.T) {
 	type s struct {
-		Public                  []int `annotation:"public"`
-		private                 []int `annotation:"private"`
-		Protected               []int `annotation:"protected, protected=true"`
-		Required                []int `annotation:"require, require=true"`
-		Default                 []int `annotation:"default, default=[1000,1001]"`
-		privateDefaultProtected []int `annotation:"privateDefaultProtected, default=[1000,1001], protected=true"`
+		Public                  []int `k8smap:"public"`
+		private                 []int `k8smap:"private"`
+		Protected               []int `k8smap:"protected, protected=true"`
+		Required                []int `k8smap:"require, require=true"`
+		Default                 []int `k8smap:"default, default=[1000,1001]"`
+		privateDefaultProtected []int `k8smap:"privateDefaultProtected, default=[1000,1001], protected=true"`
 		Nested                  struct {
-			Value []int `annotation:"nested, default=[100,101]"`
+			Value []int `k8smap:"nested, default=[100,101]"`
 		}
 	}
 
@@ -752,14 +752,14 @@ func TestIntSlice(t *testing.T) {
 
 func TestFloat64Slice(t *testing.T) {
 	type s struct {
-		Public                  []float64 `annotation:"public"`
-		private                 []float64 `annotation:"private"`
-		Protected               []float64 `annotation:"protected, protected=true"`
-		Required                []float64 `annotation:"require, require=true"`
-		Default                 []float64 `annotation:"default, default=[1000,1001]"`
-		privateDefaultProtected []float64 `annotation:"privateDefaultProtected, default=[1000,1001], protected=true"`
+		Public                  []float64 `k8smap:"public"`
+		private                 []float64 `k8smap:"private"`
+		Protected               []float64 `k8smap:"protected, protected=true"`
+		Required                []float64 `k8smap:"require, require=true"`
+		Default                 []float64 `k8smap:"default, default=[1000,1001]"`
+		privateDefaultProtected []float64 `k8smap:"privateDefaultProtected, default=[1000,1001], protected=true"`
 		Nested                  struct {
-			Value []float64 `annotation:"nested, default=[100,101]"`
+			Value []float64 `k8smap:"nested, default=[100,101]"`
 		}
 	}
 
@@ -872,14 +872,14 @@ func TestFloat64Slice(t *testing.T) {
 
 func TestStringSlice(t *testing.T) {
 	type s struct {
-		Public                  []string `annotation:"public"`
-		private                 []string `annotation:"private"`
-		Protected               []string `annotation:"protected, protected=true"`
-		Required                []string `annotation:"require, require=true"`
-		Default                 []string `annotation:"default, default=[1000,1001]"`
-		privateDefaultProtected []string `annotation:"privateDefaultProtected, default=[1000,1001], protected=true"`
+		Public                  []string `k8smap:"public"`
+		private                 []string `k8smap:"private"`
+		Protected               []string `k8smap:"protected, protected=true"`
+		Required                []string `k8smap:"require, require=true"`
+		Default                 []string `k8smap:"default, default=[1000,1001]"`
+		privateDefaultProtected []string `k8smap:"privateDefaultProtected, default=[1000,1001], protected=true"`
 		Nested                  struct {
-			Value []string `annotation:"nested, default=[100,101]"`
+			Value []string `k8smap:"nested, default=[100,101]"`
 		}
 	}
 
@@ -992,14 +992,14 @@ func TestStringSlice(t *testing.T) {
 
 func TestBoolSlice(t *testing.T) {
 	type s struct {
-		Public                  []bool `annotation:"public"`
-		private                 []bool `annotation:"private"`
-		Protected               []bool `annotation:"protected, protected=true"`
-		Required                []bool `annotation:"require, require=true"`
-		Default                 []bool `annotation:"default, default=[true,true]"`
-		privateDefaultProtected []bool `annotation:"privateDefaultProtected, default=[true,true], protected=true"`
+		Public                  []bool `k8smap:"public"`
+		private                 []bool `k8smap:"private"`
+		Protected               []bool `k8smap:"protected, protected=true"`
+		Required                []bool `k8smap:"require, require=true"`
+		Default                 []bool `k8smap:"default, default=[true,true]"`
+		privateDefaultProtected []bool `k8smap:"privateDefaultProtected, default=[true,true], protected=true"`
 		Nested                  struct {
-			Value []bool `annotation:"nested, default=[true,true]"`
+			Value []bool `k8smap:"nested, default=[true,true]"`
 		}
 	}
 

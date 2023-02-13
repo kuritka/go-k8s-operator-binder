@@ -1,4 +1,4 @@
-package k8s
+package k8smap
 
 /*
 Copyright 2023 The AbsaOSS Contributors.
@@ -237,7 +237,7 @@ func setNumeric(annotations map[string]string, f reflect.Value, v field) (err er
 
 // recoursive function builds meta structure
 func roll(annotations map[string]string, value reflect.Value, n, prefix string) (m meta, err error) {
-	const tagAnnotation = "annotation"
+	const tagAnnotation = "k8smap"
 
 	m = meta{}
 	for i := 0; i < value.NumField(); i++ {

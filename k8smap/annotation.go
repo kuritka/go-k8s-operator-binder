@@ -1,5 +1,5 @@
 // Package k8s provides easy way to bind k8s annotations
-package k8s
+package k8smap
 
 /*
 Copyright 2023 The AbsaOSS Contributors.
