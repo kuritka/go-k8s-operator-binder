@@ -30,7 +30,118 @@ setting default values or forcing a value.
 
 ### K8s Binder
 
+
+
 ### Environment variables binder
+The ENV-GO-K8S-OPERATOR-BINDER/env package is used to easily bind environment variables to GO structures. ENV-BINDER is designed to
+be usable in the widest possible range of scenarios.Among other things, it supports variable
+prefixes and bindings to unexported arrays. Take a look at the following usage example:
+```golang
+import "github.com/kuritka/go-k8s-operator-binder/env"
+
+type Endpoint struct {
+	URL string `env:"ENDPOINT_URL, require=true"`
+}
+
+type Config struct {
+
+	// reading string value from NAME
+	Name string `env:"NAME"`
+
+	// reuse an already bound env variable NAME
+	Description string `env:"NAME"`
+
+	// reuse an already bound variable NAME, but replace only when name 
+	// was not set before
+	AlternativeName string `env:"NAME, protected=true"`
+
+	// reading int with 8080 as default value
+	DefaultPort uint16 `env:"PORT, default=8080"`
+
+	// reading slice of strings with default values
+	Regions []string `env:"REGIONS, default=[us-east-1,us-east-2,us-west-1]"`
+
+	// reading slice of strings from env var
+	Subnets []string `env:"SUBNETS, default=[10.0.0.0/24,192.168.1.0/24]"`
+	
+	// default=[] ensures that if INTERVALS does not exist, 
+	// []int8{} is set instead of []int8{nil}
+	Interval []uint8 `env:"INTERVALS, default=[]"`
+
+	// nested structure
+	Credentials struct {
+
+		// binding required value
+		KeyID string `env:"ACCESS_KEY_ID, require=true"`
+
+		// binding to private field
+		secretKey string `env:"SECRET_ACCESS_KEY, require=true"`
+	}
+
+	// expected PRIMARY_ prefix in nested environment variables
+	Endpoint1 Endpoint `env:"PRIMARY"`
+
+	// expected FAILOVER_ prefix in nested environment variables
+	Endpoint2 Endpoint `env:"FAILOVER"`
+
+	// the field does not have a bind tag set, 
+	// so it will be ignored during bind
+	Args []string
+}
+
+
+func main() {
+	defer clean()
+	os.Setenv("PRIMARY_ENDPOINT_URL", "https://ep1.cloud.example.com")
+	os.Setenv("FAILOVER_ENDPOINT_URL", "https://ep2.cloud.example.com")
+	os.Setenv("ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE")
+	os.Setenv("SECRET_ACCESS_KEY", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+	os.Setenv("NAME", "Hello from 12-factor")
+	os.Setenv("PORT", "9000")
+	os.Setenv("SUBNETS", "10.0.0.0/24,10.0.1.0/24, 10.1.0.0/24,  10.1.1.0/24")
+
+	c := &Config{}
+	c.AlternativeName = "protected name"
+	c.Description = "hello from ENV-BINDER"
+	if err := env.Bind(c); err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(JSONize(c))
+}
+
+```
+function main generates the following output:
+```json
+{
+  "Name": "Hello from 12-factor",
+  "Description": "Hello from 12-factor",
+  "AlternativeName": "protected name",
+  "DefaultPort": 9000,
+  "Regions": [
+    "us-east-1",
+    "us-east-2",
+    "us-west-1"
+  ],
+  "Subnets": [
+    "10.0.0.0/24",
+    "10.0.1.0/24",
+    "10.1.0.0/24",
+    "10.1.1.0/24"
+  ],
+  "Interval": [],
+  "Credentials": {
+    "KeyID": "AKIAIOSFODNN7EXAMPLE"
+  },
+  "Endpoint1": {
+    "URL": "https://ep1.cloud.example.com"
+  },
+  "Endpoint2": {
+    "URL": "https://ep2.cloud.example.com"
+  },
+  "Args": null
+}
+```
 
 ## Supported types
 GO-K8S-OPERATOR-BINDER supports all types listed in the following table.  In addition, it should be noted that in the case
