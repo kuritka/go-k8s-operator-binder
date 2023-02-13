@@ -29,7 +29,7 @@ sources without having to learn something new. A few keywords will make it much 
 setting default values or forcing a value.
 
 ### K8s Binder
-The ENV-GO-K8S-OPERATOR-BINDER/k8s package is used to easily bind kubernetes annotations and labels into GO structures.
+The **ENV-GO-K8S-OPERATOR-BINDER/k8s** package is used to easily bind kubernetes annotations and labels into GO structures.
 Effectively it is about `map[string]string` configurations.
 
 
@@ -60,11 +60,11 @@ var settings = struct {
     // binding bool value
     Autoscale bool         `k8smap:"k8gb.io/dns-ttl-seconds"`
 	// nested structure
-	Credentials struct{
-		// public nested protected with default test 
-		UID       `k8smap:"k8gb.io/uid, protected=true, default=test`
+    Credentials struct{
+        // public nested protected with default test 
+        UID       `k8smap:"k8gb.io/uid, protected=true, default=test`
         // private nested protected with default test
-		token    `k8smap:"k8gb.io/uid, protected=true, default=pwd123`
+        token    `k8smap:"k8gb.io/uid, protected=true, default=pwd123`
     }
 }{}
 
@@ -75,18 +75,19 @@ if err != nil {
 	// do Something
 }
 annotations = ing.GetAnnotations()
+// binding 
 err = k8smap.Bind(annotations, &settings)
 if err != nil {
 	// do something
 }
 // fmt.Println(settings)
 ```
-This is all you need, the `settings` will contain the correct values loaded from the Annotations. Of course 
-you can use Labels instead of Annotations. Keywords like `protected` or `default` can be configured in various ways 
-as well as various data-types, see below in this documentation.
+This is all you need, the `settings` will contain the correct values loaded from the Annotations.
+Keywords like `protected` or `default` can be configured in various ways as well as various data-types, 
+see below in this documentation.
 
 ### Environment variables binder
-The ENV-GO-K8S-OPERATOR-BINDER/env package is used to easily bind environment variables to GO structures. The package 
+The **ENV-GO-K8S-OPERATOR-BINDER/env** package is used to easily bind environment variables to GO structures. The package 
 is designed to be usable in the widest possible range of scenarios. Among other things, it supports variable prefixes 
 and bindings to unexported arrays. Take a look at the following usage example:
 ```golang
@@ -197,9 +198,9 @@ function main generates the following output:
 ```
 
 ## Supported types
-GO-K8S-OPERATOR-BINDER supports all types listed in the following table.  In addition, it should be noted that in the case
-of slices, GO-K8S-OPERATOR-BINDER creates an instance of an empty slice if the value of the environment variable is
-declared and its value is empty string. In this case GO-K8S-OPERATOR-BINDER returns an empty slice instead of the vulnerable nil.
+**GO-K8S-OPERATOR-BINDER** supports all types listed in the following table.  In addition, it should be noted that in the case
+of slices, **GO-K8S-OPERATOR-BINDER** creates an instance of an empty slice if the value of the environment variable is
+declared and its value is empty string. In this case **GO-K8S-OPERATOR-BINDER** returns an empty slice instead of the vulnerable nil.
 
 | primitive types | slices |
 |---|---|
@@ -210,7 +211,7 @@ declared and its value is empty string. In this case GO-K8S-OPERATOR-BINDER retu
 | `string` | `[]string` |
 
 ## Supported keywords
-Besides the fact that GO-K8S-OPERATOR-BINDER works with private fields and can add prefixes to variable names, it
+Besides the fact that **GO-K8S-OPERATOR-BINDER** works with private fields and can add prefixes to variable names, it
 operates with several keywords. The structure in the introductory section works with all types
 of these keywords.
 
