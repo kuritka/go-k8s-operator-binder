@@ -1,9 +1,9 @@
 # k8s-go-map-binder
 [![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Go Reference](https://pkg.go.dev/badge/github.com/AbsaOSS/k8s-map-binder.svg)](https://pkg.go.dev/github.com/AbsaOSS/k8s-map-binder?branch=master)
-![Build Status](https://github.com/AbsaOSS/k8s-map-binder/actions/workflows/build.yaml/badge.svg?branch=master)
-![Linter](https://github.com/AbsaOSS/k8s-map-binder/actions/workflows/lint.yaml/badge.svg?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/AbsaOSS/k8s-map-binder)](https://goreportcard.com/report/github.com/AbsaOSS/k8s-map-binder?branch=master)
+[![Go Reference](https://pkg.go.dev/badge/github.com/kuritka/go-k8s-operator-binder.svg)](https://pkg.go.dev/github.com/kuritka/go-k8s-operator-binder?branch=main)
+![Build Status](https://github.com/kuritka/go-k8s-operator-binder/actions/workflows/test.yaml/badge.svg?branch=main)
+![Linter](https://github.com/kuritka/go-k8s-operator-binder/actions/workflows/lint.yaml/badge.svg?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kuritka/go-k8s-operator-binder)](https://goreportcard.com/report/github.com/kuritka/go-k8s-operator-binder?branch=main)
 
 My Kubernetes operators usually read configurations from two sources. The first is Config values that sit in 
 Environment Variables. The second configuration is obtained at runtime by reading annotations and labels.
@@ -14,10 +14,10 @@ nested structures.
 
 ## Table of Content
 - [QuickStart](#quickstart)
-  - [K8s binder](#k8s binder)
-  - [Environment variables binder](#Environment variables binder)
-- [Supported types](#supported types)
-- [Supported keywords](#supported keywords)
+  - [K8s binder](#k8s-binder)
+  - [Environment variables binder](#environment-variables-binder)
+- [Supported types](#supported-types)
+- [Supported keywords](#supported-keywords)
 
 
 ## QuickStart
