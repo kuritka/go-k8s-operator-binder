@@ -1,4 +1,4 @@
-// Package k8s provides easy way to bind k8s annotations
+// Package k8smap provides easy way to bind k8s annotations
 package k8smap
 
 /*

@@ -32,10 +32,58 @@ setting default values or forcing a value.
 The ENV-GO-K8S-OPERATOR-BINDER/k8s package is used to easily bind kubernetes annotations and labels into GO structures.
 Effectively it is about `map[string]string` configurations.
 
-```golang
-import "github.com/kuritka/go-k8s-operator-binder/k8s"
 
+Imagine we have a resource that contains the following annotations (it works exactly the same for Labels).
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    company.example.io/strategy: failover
+    company.example.io/primary-geotags: us,za
+    company.example.io/ttl-seconds: "30"
+    company.example.io/autoscale: "true"
+    company.example.io/uid: "eyJhbGciOiJ"
+  name: ing
 ```
+
+```golang
+import "github.com/kuritka/go-k8s-operator-binder/k8smap"
+
+var settings = struct {
+	// binding required value
+    Type          string   `k8smap"company.example.io/strategy, require=true"`
+	// binding slice of strings
+    PrimaryGeoTag []string `k8smap:"company.example.io/primary-geotags"`
+	// if the configuration is missing, then set the default int value to 30 
+    TTLSeconds int         `k8smap:"k8gb.io/dns-ttl-seconds, default=30"`
+    // binding bool value
+    Autoscale bool         `k8smap:"k8gb.io/dns-ttl-seconds"`
+	// nested structure
+	Credentials struct{
+		// public nested protected with default test 
+		UID       `k8smap:"k8gb.io/uid, protected=true, default=test`
+        // private nested protected with default test
+		token    `k8smap:"k8gb.io/uid, protected=true, default=pwd123`
+    }
+}{}
+
+// Fetch resource instance
+ing := &netv1.Ingress{}
+err := r.Get(ctx, req.NamespacedName, ing)
+if err != nil {
+	// do Something
+}
+annotations = ing.GetAnnotations()
+err = k8smap.Bind(annotations, &settings)
+if err != nil {
+	// do something
+}
+// fmt.Println(settings)
+```
+This is all you need, the `settings` will contain the correct values loaded from the Annotations. Of course 
+you can use Labels instead of Annotations. Keywords like `protected` or `default` can be configured in various ways 
+as well as various data-types, see below in this documentation.
 
 ### Environment variables binder
 The ENV-GO-K8S-OPERATOR-BINDER/env package is used to easily bind environment variables to GO structures. The package 
