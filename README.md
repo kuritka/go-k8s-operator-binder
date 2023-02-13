@@ -14,20 +14,28 @@ nested structures.
 
 ## Table of Content
 - [QuickStart](#quickstart)
-  - [K8s binder](#k8sbinder)
-  - [Env binder](#envbinder)
+  - [K8s binder](#k8s binder)
+  - [Environment variables binder](#Environment variables binder)
 - [Supported types](#supported types)
 - [Supported keywords](#supported keywords)
-- [Environment variables](#environment variables)
+
 
 ## QuickStart
+Although this library is primarily developed for operators, it can be used anywhere you work with 
+Environment Variables or `map[string]string`.
 
+The great advantage of this library is its ease of use and the fact that it allows you to read the configuration from multiple 
+sources without having to learn something new. A few keywords will make it much easier for you to perform basic operations like 
+setting default values or forcing a value.
 
+### K8s Binder
+
+### Environment variables binder
 
 ## Supported types
-ENV-BINDER supports all types listed in the following table.  In addition, it should be noted that in the case
-of slices, ENV-BINDER creates an instance of an empty slice if the value of the environment variable is
-declared and its value is empty string. In this case ENV-BINDER returns an empty slice instead of the vulnerable nil.
+GO-K8S-OPERATOR-BINDER supports all types listed in the following table.  In addition, it should be noted that in the case
+of slices, GO-K8S-OPERATOR-BINDER creates an instance of an empty slice if the value of the environment variable is
+declared and its value is empty string. In this case GO-K8S-OPERATOR-BINDER returns an empty slice instead of the vulnerable nil.
 
 | primitive types | slices |
 |---|---|
@@ -38,7 +46,7 @@ declared and its value is empty string. In this case ENV-BINDER returns an empty
 | `string` | `[]string` |
 
 ## Supported keywords
-Besides the fact that ENV-BINDER works with private fields and can add prefixes to variable names, it
+Besides the fact that GO-K8S-OPERATOR-BINDER works with private fields and can add prefixes to variable names, it
 operates with several keywords. The structure in the introductory section works with all types
 of these keywords.
 
@@ -54,7 +62,3 @@ of these keywords.
 You can combine individual tags freely: `env: "ENV_SWITCHER", default=[true, false, true], protected=true`
 is a perfectly valid configuration
 
-## Environment variables
-Besides Kubernetes resources, the operator must be able to read environment variables from the container it 
-was run in. You can also bind values from environment variables in a perfectly compatible way as here. 
-See [env-binder](https://github.com/AbsaOSS/env-binder) 🚀.

@@ -1,4 +1,4 @@
-// Package annotation provides easy way to bing k8s annotations
+// Package annotation provides easy way to bind k8s annotations
 package annotation
 
 /*
