@@ -25,7 +25,7 @@ Although this library is primarily developed for operators, it can be used anywh
 Environment Variables or `map[string]string`.
 
 The great advantage of this library is its ease of use and the fact that it allows you to read the configuration from multiple 
-sources without having to learn something new. A few keywords will make it much easier for you to perform basic operations like 
+sources without having to learn other libs. A few keywords will make it much easier for you to perform basic operations like 
 setting default values or forcing a value.
 
 ### K8s Binder
@@ -64,7 +64,7 @@ var settings = struct {
         // public nested protected with default test 
         UID       `k8smap:"k8gb.io/uid, protected=true, default=test`
         // private nested protected with default test
-        token    `k8smap:"k8gb.io/uid, protected=true, default=pwd123`
+        base64    `k8smap:"k8gb.io/uid, protected=true, default=MMaBcDeFgH...`
     }
 }{}
 
